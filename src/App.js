@@ -1,25 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import Components from './components'
+import NotFound from './components/NotFound';
+import { AuthProvider } from './AuthContext';
+import { Routes, Route } from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import {
+  Public,
+  Private
+} from "./routes";
+
+function App () {
+	
+    return (
+        <AuthProvider>
+            <>
+                <Components.Nav />
+                <Routes>
+                    <Route path="/" element={<Public><Components.Login /></Public>} />
+                    <Route path="/dashboard" element={<Private><Components.Dashboard /></Private>} />
+                    <Route path="/dashboard/waiters" element={<Private><Components.Waiters/></Private>} />
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Components.Footer />
+            </>
+        </AuthProvider>
+    )
 }
 
 export default App;
