@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ApiService from "../../api";
 import { useAuth } from "../../AuthContext";
 import CardTable from "../ui/CardTables";
@@ -7,30 +7,34 @@ export default function Waiters() {
     const [menu, setMenu] = useState(0);
     const [allTables, setAllTables] = useState([]); // Todas las mesas originales
     const [tables, setTables] = useState([]); // Mesas filtradas
-    const { token } = useAuth(); // Obtener el token del contexto de autenticación
+    const { user, token } = useAuth(); // Obtener el usuario (que contiene el token)
     const [filters, setFilters] = useState({
         status: '',
         section: '',
         capacity: ''
     }); // Estado para los filtros
 
+    const fetchTables = useCallback(() => {
+        if (!token) return;
+        const apiService = new ApiService(user.token);
+        apiService.getTables()
+            .then(data => {
+                setAllTables(data);
+            })
+            .catch(error => {
+                console.error("Error fetching tables:", error);
+            });
+    }, [user?.token]);
+
     // Cargar mesas al cambiar de menú
     useEffect(() => {
         if (menu === 1) {
-            const apiService = new ApiService(token);
-            apiService.getTables()
-                .then(data => {
-                    setAllTables(data);
-                    setTables(data);
-                })
-                .catch(error => {
-                    console.error("Error fetching tables:", error);
-                });
+            fetchTables();
         } else if (menu === 0 || menu === 2) {
             setAllTables([]);
             setTables([]);
         }
-    }, [menu, token]);
+    }, [menu, fetchTables]);
 
     // Filtrar mesas cuando cambian los filtros o las mesas originales
     useEffect(() => {
@@ -143,7 +147,7 @@ export default function Waiters() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {tables.length > 0 ? (
                             tables.map(table => (
-                                <CardTable key={table.id_table} data={table} />
+                                <CardTable key={table.id_table} data={table} onTableUpdate={fetchTables} />
                             ))
                         ) : (
                             <div className="text-gray-500">

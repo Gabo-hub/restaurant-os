@@ -9,9 +9,10 @@ export default function Nav () {
 	}
 
 	return (
-		<nav className="px-10 h-[65px] shadow-sm align-middle flex">
+		<nav className=" px-10 max-sm:px-2 h-[65px] shadow-sm align-middle flex">
 			<div className='w-full flex justify-between items-center'>
-				<h1 className="	text-2xl font-semibold">Restaurant Os</h1>
+				<h1 className="	text-2xl font-semibold max-sm:hidden">Restaurant Os</h1>
+				<h3 className='text-xl font-semibold'>{ user && user.name }</h3>
 				<ul className="flex items-center justify-between gap-1">
 					{ user && <li className="nav-item">
 						<NavLink to="/dashboard"><button className="p-2 h-min tabs rounded-e-none"><span>Dashboard</span></button></NavLink>
