@@ -5,6 +5,7 @@ import Login from './Login/Login'
 import Dashboard from './Dashboard/Dashboard'
 import Waiters from './Waiters/Waiters'
 import Footer from './Footer/Footer'
+import Cashiers from './Cashiers/Cashiers'
 
 
 const components = {
@@ -12,8 +13,9 @@ const components = {
 	// Home,
 	Nav,
 	Login,
-    Dashboard,
+	Dashboard,
 	Waiters,
+	Cashiers,
 	Footer
 }
 

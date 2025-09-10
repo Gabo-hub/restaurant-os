@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -23,7 +24,7 @@ code {
     monospace;
 }
 
-/* From Uiverse.io by Cevorob */ 
+/* From Uiverse.io by Cevorob */
 button {
   padding: 9px 20px;
   border-radius: 50px;
@@ -94,7 +95,9 @@ button.tabs:active {
 
 select {
   appearance: none;
+
   @supports (appearance: base-select) {
+
     &,
     &::picker(select) {
       appearance: base-select;
@@ -114,12 +117,12 @@ select {
   cursor: pointer;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  background: rgb(45, 160, 226)
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23FFF' class='size-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E%0A")
-    right 10px center / 20px no-repeat;
+  background: rgb(45, 160, 226) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23FFF' class='size-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E%0A") right 10px center / 20px no-repeat;
+
   @supports (appearance: base-select) {
     padding-inline: 10px;
     background-image: none;
+
     &::picker-icon {
       content: "";
       width: 20px;
@@ -127,9 +130,11 @@ select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23FFF' class='size-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E%0A");
       transition: rotate 0.2s ease-out;
     }
+
     &:open::picker-icon {
       rotate: 180deg;
     }
+
     &::picker(select) {
       padding: 0;
       margin-top: 5px;
@@ -147,15 +152,18 @@ select {
 
       transition-behavior: allow-discrete;
     }
+
     &:open::picker(select) {
       opacity: 1;
       height: calc-size(auto, size);
       overflow: auto;
+
       @starting-style {
         opacity: 0;
         height: 0;
       }
     }
+
     option {
       padding: 10px;
       /* border-top: 1px solid plum; */
@@ -163,17 +171,21 @@ select {
       transition-property: color, background;
       transition-duration: 0.2s;
       transition-timing-function: ease-out;
+
       &:where(:hover, :focus, :active) {
         background: hsl(212, 83%, 51%);
         color: white;
       }
+
       &:checked {
         background: hsl(212, 80%, 48%);
         color: white;
       }
+
       &::checkmark {
         display: none;
       }
+
       &:first-child {
         border: 0;
       }
