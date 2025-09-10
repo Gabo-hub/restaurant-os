@@ -2,7 +2,7 @@ const API_BASE_URL = 'http://localhost:5000/api'; // Reemplaza con la URL de tu 
 
 class ApiService {
   constructor(token) {
-    this.token = token;
+    this.token = localStorage.getItem('token') || token;
     this.token = localStorage.getItem('token') || token;
   }
 
@@ -144,6 +144,36 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  // Metodos para type order
+  getTypeOrders() {
+    return this._fetch('/type_orders/');
+  }
+
+  addTypeOrder(typeOrderData) {
+    return this._fetch('/type_orders/', {
+      method: 'POST',
+      body: JSON.stringify(typeOrderData),
+    });
+  }
+
+  getTypeOrder(typeOrderId) {
+    return this._fetch(`/type_orders/${typeOrderId}`);
+  }
+
+  updateTypeOrder(typeOrderId, typeOrderData) {
+    return this._fetch(`/type_orders/${typeOrderId}`, {
+      method: 'PUT',
+      body: JSON.stringify(typeOrderData),
+    });
+  }
+
+  deleteTypeOrder(typeOrderId) {
+    return this._fetch(`/type_orders/${typeOrderId}`, {
+      method: 'DELETE',
+    });
+  }
+
 }
 
 export default ApiService;
