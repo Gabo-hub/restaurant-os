@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import Loading from './components/Loading/Loading';
 
 const AuthContext = createContext(null);
+const API_URL = process.env.REACT_API_URL || 'http://localhost:5000';
 
 export function useAuth() {
   return useContext(AuthContext);
@@ -12,22 +13,22 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() =>  {
+  useEffect(() => {
     const token = localStorage.getItem('token');
 
     if (token) {
-      fetch('https://182vv9td-5000.use2.devtunnels.ms/api/auth/verify-token', {
+      fetch(`${API_URL}/api/auth/verify-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ token }),
       }).then(res => {
-          if (!res.ok) {
-            throw new Error('Token verification failed');
-          }
-          return res.json();
-        })
+        if (!res.ok) {
+          throw new Error('Token verification failed');
+        }
+        return res.json();
+      })
         .then(result => {
           if (result.token) {
             const userData = {
@@ -58,7 +59,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (username, password) => {
-    const url = 'https://182vv9td-5000.use2.devtunnels.ms/api/auth/login';
+    const url = `${API_URL}/api/auth/login`;
     const data = { username, password };
 
     try {

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api'; // Reemplaza con la URL de tu backend
+const API_BASE_URL = `${process.env.REACT_API_URL}/api`; // Reemplaza con la URL de tu backend
 
 class ApiService {
   constructor(token) {
