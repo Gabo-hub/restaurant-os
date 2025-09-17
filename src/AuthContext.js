@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import Loading from './components/Loading/Loading';
 
 const AuthContext = createContext(null);
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 export function useAuth() {
   return useContext(AuthContext);
@@ -16,7 +17,7 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('token');
 
     if (token) {
-      fetch('http://localhost:5000/api/auth/verify-token', {
+      fetch(`${API_URL}/api/auth/verify-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +59,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (username, password) => {
-    const url = 'http://localhost:5000/api/auth/login';
+    const url = `${API_URL}/api/auth/login`;
     const data = { username, password };
 
     try {
