@@ -187,7 +187,7 @@ export default function Waiters() {
             const lastOrders = await apiService.getOrdersByWaiter(user.id, 5);
             const tableCount = await apiService.getTablesCount();
 
-            console.log(waiterOrdersStats);
+            console.log(waiterOrdersStats, waiterTablesStats, lastOrders, tableCount);
 
             const totalTables = tableCount.data.count || 0;
             const occupiedTables = waiterTablesStats.data.statistics.active_sessions || 0;

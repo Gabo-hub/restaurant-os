@@ -74,7 +74,7 @@ const Login = () => {
         <div className="flex-row">
           <div className='flex gap-1'>
             <Switch id='RSwitch' name='RSwitch' checked={rememberMe} onChange={handleRememberMeChange} />
-            <label>Remember me </label>
+            <label>Recuerdame</label>
           </div>
         </div>
 
