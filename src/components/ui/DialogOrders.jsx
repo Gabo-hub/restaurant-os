@@ -3,7 +3,7 @@ import Loading from "../Loading/Loading";
 import ApiService from "../../api";
 import DetailsMenu from "./DetailsMenu";
 import { useAuth } from "../../AuthContext";
-import { createPath } from "react-router-dom";
+import { Button } from "@tremor/react";
 
 export default function DialogOrder({ isOpen, setisOpen, data }) {
     const [loading, setLoading] = useState(false);
@@ -20,8 +20,8 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
     const [itemDetail, setItemDetail] = useState("");
     const [selectedDetailItem, setSelectedDetailItem] = useState(null);
 
-    const [typeSelected, setTypeSelected] = useState(3);
-    const [typesOrders, setTypeOrders] = useState([])
+    // const [typeSelected, setTypeSelected] = useState(3);
+    // const [typesOrders, setTypeOrders] = useState([])
 
     const [isLoading, setIsLoading] = useState(false);
     const [notification, setNotification] = useState({ message: null, type: '' });
@@ -38,13 +38,13 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
             .catch(error => {
                 console.error("Error fetching menus:", error);
             });
-        apiService.getTypeOrders()
-            .then(data => {
-                setTypeOrders(data);
-            })
-            .catch(error => {
-                console.error("Error fetching type orders:", error);
-            });
+        // apiService.getTypeOrders()
+        //     .then(data => {
+        //         setTypeOrders(data);
+        //     })
+        //     .catch(error => {
+        //         console.error("Error fetching type orders:", error);
+        //     });
             
     }, []);
 
@@ -64,10 +64,10 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
     }, [filter, menus]);
 
     //Manejar el tipo de orden
-    const handleTypeOrder = (e) => {
-        console.log(e.target.value);
-        setTypeSelected(e.target.value);
-    }
+    // const handleTypeOrder = (e) => {
+    //     console.log(e.target.value);
+    //     setTypeSelected(e.target.value);
+    // }
 
     // Abrir el diálogo de detalles del menu
     const openDetailsMenu = (item) => {
@@ -152,17 +152,18 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
     const confirmAndSaveOrder = () => {
         setIsLoading(true);
         setNotification({ message: null, type: '' }); // Reset notification
-        const apiService = new ApiService(user.token);
+        const apiService = new ApiService();
 
         const orderData = {
             id_table: data.id_table,
+            id_waiter: user.id,
             items: Object.values(order).map(item => ({
                 id_menu: item.id_menu,
                 quantity: item.quantity,
                 discount: item.discount,
                 description: item.detail || "",
             })),
-            id_type: Number(typeSelected),
+            id_type: Number(3),
         };
 
         console.log(orderData);
@@ -203,14 +204,14 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                     
                     <h2 className="text-xl font-bold my-5 w-full">Menú</h2>
                     
-                    <button onClick={() => setMobileMode(!mobileMode)} className="hidden max-sm:block">Ver Menu</button>
+                    <Button onClick={() => setMobileMode(!mobileMode)} className="hidden max-sm:block">Ver Menu</Button>
 
                     <div onClick={() => setMobileMode(false)} className={`${mobileMode ? 'fixed w-full h-full top-0 left-0 bg-black/70': 'flex w-full h-full max-h-[88%]'}`}>
                         <div onClick={(e) => e.stopPropagation()} className={` w-full px-2 h-full max-h-[88%] ${mobileMode ? 'fixed rounded-lg bg-white w-[80%] h-[85%] top-[calc(50%)] left-[calc(50%)] -translate-x-[50%] -translate-y-[50%] overflow-hidden' : 'max-sm:hidden'}`}>
                             
                             <div className="flex items-center gap-2">
                             <input value={filter} onChange={e => setFilter(e.target.value.toLowerCase())} type="text" placeholder="Buscar" className=" w-full p-1 my-2 border rounded-md" id="search_menus"/>
-                            <button onClick={() => setMobileMode(false)} className={`clean p-1 w-40 h-[34px] rounded-md bg-red-500 hover:bg-red-700 text-white ${mobileMode ? 'block' : 'hidden'}`}>Cerrar</button>
+                            <Button onClick={() => setMobileMode(false)} className={`clean p-1 w-40 h-[34px] rounded-md bg-red-500 hover:bg-red-700 text-white ${mobileMode ? 'block' : 'hidden'}`}>Cerrar</Button>
                             </div>
                             
                             {menusFiltered.length > 0 && (
@@ -221,9 +222,9 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                                                 <p className="text-gray-600 mt-2">${item.price}</p>
                                                 <p className="text-sm max-h-[22px] text-gray-500 mt-2 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{item.description}</p>
                                                 {item.stock > 5 && item.availability === true ? (
-                                                    <button onClick={() => handleOrderChange(item)} className="clean w-full">Agregar</button>
+                                                    <Button onClick={() => handleOrderChange(item)} className="clean w-full">Agregar</Button>
                                                 ) : (
-                                                    <button className="disabled clean" disabled>Agregar</button>
+                                                    <Button className="disabled clean" disabled>Agregar</Button>
                                                 )}                      
                                         </div>
                                     ))}
@@ -254,9 +255,9 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                                                 </svg>
                                             </div>
-                                            <button onClick={() => handleDecreaseItem(item.id_menu)} className="clean px-2 py-1 bg-red-500 hover:bg-red-700 text-white rounded">-</button>
+                                            <Button onClick={() => handleDecreaseItem(item.id_menu)} className="border-none px-2 py-1 bg-red-500 hover:bg-red-700 text-white rounded">-</Button>
                                             <span>{item.quantity}</span>
-                                            <button onClick={() => handleOrderChange(item)} className="clean px-2 py-1 bg-green-500 hover:bg-green-700 text-white rounded">+</button>
+                                            <Button onClick={() => handleOrderChange(item)} className="border-none px-2 py-1 bg-green-500 hover:bg-green-700 text-white rounded">+</Button>
                                         </div>
                                     </div>
                                 ))}
@@ -270,7 +271,7 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                         <div className="flex flex-col justify-between h-min w-full mb-5">
                             <hr className="w-full mt-5"/>
                             <h3 className="text-xl font-semibold">Total: ${getTotal()}</h3>
-                            <div className="grid auto-rows-auto grid-cols-2 lg:flex w-full lg:space-x-3 h-full items-center lg:overflow-x-auto">
+                            {/* <div className="grid auto-rows-auto grid-cols-2 lg:flex w-full lg:space-x-3 h-full items-center lg:overflow-x-auto">
                                 {typesOrders.map(type => (
                                     <div key={type.id_type}>
                                         <input
@@ -287,16 +288,16 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                                         </label>
                                     </div>
                                 ))}
-                            </div>
+                            </div> */}
                             <div className="flex justify-between mt-4">
-                                <button 
+                                <Button 
                                     onClick={confirmAndSaveOrder} 
-                                    className="clean rounded-md bg-green-500 hover:bg-green-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                    className="border-none rounded-md bg-green-500 hover:bg-green-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
                                     disabled={isLoading}
                                 >
                                     {isLoading ? 'Guardando...' : 'Guardar Orden'}
-                                </button>
-                                <button onClick={closeDialog} className="clean rounded-md bg-red-500 hover:bg-red-700 text-white">Cancelar</button>
+                                </Button>
+                                <Button onClick={closeDialog} className="border-none rounded-md bg-red-500 hover:bg-red-700 text-white">Cancelar</Button>
                             </div>
                         </div>
                         
@@ -304,7 +305,7 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                 </div>
             </div>
             {ShowDetailItem && (
-                <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center">
+                <div className="fixed inset-0 h-[111%] bg-black/70 z-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-2/3">
                         <h2 className="text-xl font-bold mb-4">Agregar Detalle a {selectedDetailItem.name}</h2>
                         <textarea
@@ -315,18 +316,18 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                             rows="3"
                         />
                         <div className="flex justify-end gap-4 mt-4">
-                            <button
+                            <Button
                                 onClick={() => setShowDetailItem(false)}
-                                className="clean rounded-md bg-gray-500 hover:bg-gray-700 text-white"
+                                className="border-none rounded-md bg-gray-500 hover:bg-gray-700 text-white"
                             >
                                 Cancelar
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => saveDetail(itemDetail)}
-                                className="clean rounded-md bg-green-500 hover:bg-green-700 text-white"
+                                className="border-none rounded-md bg-green-500 hover:bg-green-700 text-white"
                             >
                                 Guardar Detalle
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

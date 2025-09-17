@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -17,6 +16,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   min-height: 100vh;
+  background: linear-gradient(to bottom, #f5f5f5, #e5e5e5);
 }
 
 code {
@@ -24,7 +24,17 @@ code {
     monospace;
 }
 
-/* From Uiverse.io by Cevorob */
+button[data-headlessui-state] {
+  border: none;
+}
+
+button[data-headlessui-state]:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: #fda96c;
+}
+
+
+/* From Uiverse.io by Cevorob
 button {
   padding: 9px 20px;
   border-radius: 50px;
@@ -105,7 +115,7 @@ select {
   }
 }
 
-select {
+/* select {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -166,7 +176,6 @@ select {
 
     option {
       padding: 10px;
-      /* border-top: 1px solid plum; */
       cursor: pointer;
       transition-property: color, background;
       transition-duration: 0.2s;
@@ -191,4 +200,4 @@ select {
       }
     }
   }
-}
+} */

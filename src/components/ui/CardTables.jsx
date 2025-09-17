@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DialogOrder from "./DialogOrders";
 import { useAuth } from "../../AuthContext";
 import ApiService from "../../api";
+import { Button } from "@tremor/react";
 
 export default function CardTable({ data, onTableUpdate }) {
     const { user } = useAuth();
@@ -15,19 +16,20 @@ export default function CardTable({ data, onTableUpdate }) {
         if (isClaiming) return;
 
         // Si la mesa ya está asignada al mesero actual o el usuario es admin, abrir directamente.
-        if (data.username === user.username || user.role === 1) {
+        if (data.waiter_username === user.username || user.role === 1) {
             setShowDetails(true);
             return;
         }
 
         // Si la mesa está libre, abrir el diálogo para reclamar.
-        if (data.status_name === 'Activo') {
+        if (data.status_name === 'Disponible') {
             setShowClaimDialog(true);
         } else if (data.status_name === 'Ocupado' && data.waiter_username === user.username) {
             setShowDetails(true);
         } 
         else if (data.status_name === 'Ocupado' && data.waiter_username !== user.username) {
             alert(`Esta mesa está siendo atendida por ${data.waiter_name}.`);
+        } else {
         }
     };
 
@@ -79,24 +81,37 @@ export default function CardTable({ data, onTableUpdate }) {
     }, [showDetails, showClaimDialog]);
     return(
         <>
-            <div key={data.id_table} onClick={handleCardClick} className={`group cursor-pointer relative p-6 rounded-xl shadow-md flex flex-col items-center justify-center transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-opacity-50 ${data.status_name === 'Activo' ? 'bg-green-500 text-white' : 'bg-red-700 text-white'}`}>
+            <div key={data.id_table} onClick={handleCardClick} className={`relative cursor-pointer rounded-xl p-4 text-center transition-all duration-300 transform hover:scale-105 ${showClaimDialog ? 'ring-4 ring-orange-400 shadow-xl' : 'shadow-md'}`}>
                 {isClaiming && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl">
                         <p className="text-white animate-pulse">Reclamando...</p>
                     </div>
                 )}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" strokeWidth={1.2} stroke="currentColor" className="size-10 m-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
-                </svg>
-                <h3 className="text-lg font-bold">Mesa {data.number}</h3>
-                <p>Seccion: {data.section}</p>
-                <p>Capacidad: {data.capacity}</p>
-                {data.waiter_name && (
-                    <p>Mesero: {data.waiter_name}</p>
-                )}
-                {data.guests && (
-                    <p>Invitados: {data.guests}</p>
-                )}
+                <div className={`w-full h-16 rounded-lg mb-3 flex items-center justify-center text-white font-bold text-lg ${(data.status_name === 'Disponible') ? 'bg-green-500' : 'bg-red-500'}`}>
+                    Mesa {data.number}
+                </div>
+                <ul className="list-none p-0">
+                    <li className="mb-2 flex items-center justify-between">
+                        <span className="w-16 font-semibold text-gray-700">Sección:</span>
+                        <span className="text-gray-900">{data.section}</span>
+                    </li>
+                    <li className="mb-2 flex items-center justify-between">
+                        <span className="w-16 font-semibold text-gray-700">Capacidad:</span>
+                        <span className="text-gray-900">{data.capacity}</span>
+                    </li>
+                    {data.waiter_name && (
+                        <li className="mb-2 flex items-center justify-between">
+                            <span className="w-16 font-semibold text-gray-700">Mesero:</span>
+                            <span className="text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis" style={{ maxWidth: '100px' }} title={data.waiter_name}>{data.waiter_name}</span>
+                        </li>
+                    )}
+                    {data.guests && (
+                        <li className="mb-2 flex items-center justify-between">
+                            <span className="w-16 font-semibold text-gray-700">Invitados:</span>
+                            <span className="text-gray-900">{data.guests}</span>
+                        </li>
+                    )}
+                </ul>
             </div>
             {showClaimDialog && (
                 <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center">
@@ -118,18 +133,18 @@ export default function CardTable({ data, onTableUpdate }) {
                             {validationError && <p className="text-red-500 text-sm mt-1">{validationError}</p>}
                         </div>
                         <div className="flex justify-end gap-4 mt-6">
-                            <button
+                            <Button
                                 onClick={closeClaimDialog}
-                                className="clean rounded-md bg-gray-500 hover:bg-gray-700 text-white"
+                                className="border-none rounded-md bg-gray-500 hover:bg-gray-700 text-white"
                             >
                                 Cancelar
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={handleConfirmClaim}
-                                className="clean rounded-md bg-green-500 hover:bg-green-700 text-white"
+                                className="border-none rounded-md bg-green-500 hover:bg-green-700 text-white"
                             >
                                 Reclamar
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
