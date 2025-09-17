@@ -32,6 +32,10 @@ class ApiService {
     return this._fetch('/tables/');
   }
 
+  getTablesCount() {
+    return this._fetch('/statistics/tables/count');
+  }
+
   createTable(tableData) {
     return this._fetch('/tables/', {
       method: 'POST',
@@ -56,10 +60,10 @@ class ApiService {
     });
   }
 
-  claimTable(tableId, waiterUsername) {
+  claimTable(tableId, waiterUsername, guests) {
     return this._fetch(`/tables/${tableId}/claim`, {
       method: 'PATCH',
-      body: JSON.stringify({ waiter_username: waiterUsername }),
+      body: JSON.stringify({ waiter_username: waiterUsername, guests: guests }),
     });
   }
 
@@ -73,6 +77,14 @@ class ApiService {
 
   getOrders() {
     return this._fetch('/orders/');
+  }
+
+  getOrdersByWaiter(waiterId, limit) {
+    const queryParams = new URLSearchParams({
+      limit: limit,
+      id_waiter: waiterId
+    }).toString();
+    return this._fetch(`/orders/?${queryParams}`);
   }
 
   createOrder(orderData) {
@@ -172,6 +184,44 @@ class ApiService {
     return this._fetch(`/type_orders/${typeOrderId}`, {
       method: 'DELETE',
     });
+  }
+
+  // Métodos para estadísticas
+  getStatisticsOverview(params = {}) {
+    const queryParams = new URLSearchParams(params).toString();
+    const endpoint = queryParams ? `/statistics/overview?${queryParams}` : '/statistics/overview';
+    return this._fetch(endpoint);
+  }
+
+  getTablesOccupiedStatistics(params = {}) {
+    const queryParams = new URLSearchParams(params).toString();
+    const endpoint = queryParams ? `/tables/occupied/statistics?${queryParams}` : '/tables/occupied/statistics';
+    return this._fetch(endpoint);
+  }
+
+  getOrdersStatusStatistics(params = {}) {
+    const queryParams = new URLSearchParams(params).toString();
+    const endpoint = queryParams ? `/statistics/orders/status?${queryParams}` : '/statistics/orders/status';
+    return this._fetch(endpoint);
+  }
+
+  getSalesStatistics(params = {}) {
+    const queryParams = new URLSearchParams(params).toString();
+    const endpoint = queryParams ? `/statistics/sales?${queryParams}` : '/statistics/sales';
+    return this._fetch(endpoint);
+  }
+
+  // Métodos para estadísticas por usuario específico
+  getWaiterOrdersStatistics(waiterId, params = {}) {
+    const queryParams = new URLSearchParams(params).toString();
+    const endpoint = `/orders/waiters/${waiterId}/statistics?${queryParams}`;
+    return this._fetch(endpoint);
+  }
+
+  getWaiterTablesStatistics(waiterId, params = {}) {
+    const queryParams = new URLSearchParams(params).toString();
+    const endpoint = `/tables/waiters/${waiterId}/statistics?${queryParams}`;
+    return this._fetch(endpoint);
   }
 
 }

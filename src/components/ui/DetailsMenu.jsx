@@ -1,3 +1,4 @@
+import { Button } from "@tremor/react";
 import React from "react";
 
 export default function DetailsMenu({ isDmOpen, setisDmOpen, data }) {
@@ -9,12 +10,12 @@ export default function DetailsMenu({ isDmOpen, setisDmOpen, data }) {
                         <h2 className="text-2xl font-bold mb-4">{data.name}</h2>
                         <p className="text-gray-700 mb-2"><strong>Precio:</strong> ${data.price}</p>
                         <p className="text-gray-700 mb-4"><strong>Descripción:</strong> {data.description}</p>
-                        <button
+                        <Button
                             onClick={() => setisDmOpen(false)}
-                            className="clean bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            className="border-none bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                         >
                             Cerrar
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}

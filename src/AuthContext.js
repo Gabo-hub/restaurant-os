@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('token');
 
     if (token) {
-      fetch('https://182vv9td-5000.use2.devtunnels.ms/api/auth/verify-token', {
+      fetch('http://localhost:5000/api/auth/verify-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (username, password) => {
-    const url = 'https://182vv9td-5000.use2.devtunnels.ms/api/auth/login';
+    const url = 'http://localhost:5000/api/auth/login';
     const data = { username, password };
 
     try {
@@ -71,9 +71,8 @@ export function AuthProvider({ children }) {
       });
       const result = await res.json();
       if (result.token) {
-        const userData = { name: result.name, username: result.username, role: result.id_role };
+        const userData = { id: result.id_user, name: result.name, username: result.username, role: result.id_role };
         setUser(userData);
-        // localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', result.token);
         setToken(result.token);
         return true;
@@ -81,7 +80,6 @@ export function AuthProvider({ children }) {
         return false;
       }
     } catch (error) {
-      // console.error('Error:', error); // This line was commented out to prevent console error for 401
       return false;
     }
   };
