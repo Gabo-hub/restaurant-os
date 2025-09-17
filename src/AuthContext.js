@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import Loading from './components/Loading/Loading';
 
 const AuthContext = createContext(null);
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_API_URL || 'http://localhost:5000';
 
 export function useAuth() {
   return useContext(AuthContext);
