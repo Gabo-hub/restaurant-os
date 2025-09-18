@@ -1,4 +1,4 @@
-const API_BASE_URL = `${process.env.REACT_API_URL}/api`; // Reemplaza con la URL de tu backend
+const API_BASE_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api`; // Base URL configurable
 
 class ApiService {
   constructor(token) {
@@ -14,16 +14,38 @@ class ApiService {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    // Normaliza posibles dobles slashes en la URL final (excepto el esquema)
+    const url = `${API_BASE_URL}${endpoint}`.replace(/([^:]\/)\/+/g, '$1');
 
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+    let response;
+    try {
+      response = await fetch(url, {
+        ...options,
+        headers,
+      });
+    } catch (networkError) {
+      throw new Error(`Network error while requesting ${url}: ${networkError.message}`);
     }
 
-    return response.json();
+    const contentType = response.headers.get('content-type') || '';
+
+    if (!response.ok) {
+      if (contentType.includes('application/json')) {
+        const errorData = await response.json().catch(() => ({}));
+        const message = errorData.detail || errorData.message || JSON.stringify(errorData) || response.statusText;
+        throw new Error(`API ${response.status} ${response.statusText}: ${message}`);
+      } else {
+        const text = await response.text();
+        throw new Error(`API ${response.status} ${response.statusText}: ${text.slice(0, 200)}`);
+      }
+    }
+
+    if (contentType.includes('application/json')) {
+      return response.json();
+    } else {
+      const text = await response.text();
+      throw new Error(`Expected JSON response but received: ${text.slice(0, 200)}`);
+    }
   }
 
   // Métodos para las mesas (Tables)
