@@ -3,7 +3,6 @@ const API_BASE_URL = 'http://localhost:5000/api'; // Reemplaza con la URL de tu 
 class ApiService {
   constructor(token) {
     this.token = localStorage.getItem('token') || token;
-    this.token = localStorage.getItem('token') || token;
   }
 
   async _fetch(endpoint, options = {}) {

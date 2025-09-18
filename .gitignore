@@ -11,6 +11,7 @@ swagger-api.json
 
 # production
 /build
+.env
 
 # misc
 .DS_Store

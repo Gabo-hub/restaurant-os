@@ -1,28 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import ApiService from "../../api";
 import { useAuth } from "../../AuthContext";
 import CardTable from "../ui/CardTables";
+import MoneyTip from "../ui/MoneyTip";
 import CardStatistics from "../ui/CardStatistics";
-import {
-    Button,
-    Select,
-    SelectItem,
-    Tab,
-    TabGroup,
-    TabList,
-} from "@tremor/react";
-
+import { Button, Select, SelectItem, Tab, TabGroup, TabList } from "@tremor/react";
 import { RiFlag2Line } from "@remixicon/react";
-import {
-    Badge,
-    Card,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeaderCell,
-    TableRow,
-} from "@tremor/react";
+import { Badge, Card, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@tremor/react";
 
 export default function Waiters() {
     const [menu, setMenu] = useState(0);
@@ -40,33 +24,31 @@ export default function Waiters() {
         occupiedTables: 0,
         totalTables: 0,
         pendingOrders: 0,
-        totalSales: 0,
+        totalSales: [{amount: 0}, {USD: 0, EUR: 0}],
         completedOrders: 0,
         lastOrdersData: [],
     });
 
-    const fetchTables = useCallback(() => {
+    const apiService = useMemo(() => new ApiService(), [token]);
+
+    const fetchTables = useCallback(async () => {
         if (!token) return;
-        const apiService = new ApiService();
-        apiService
-            .getTables()
-            .then((data) => {
-                // Procesar los datos de mesas para asegurar consistencia en los estados
-                const processedTables = data.map((table) => ({
-                    ...table,
-                    // Asegurar que el estado sea consistente
-                    status_name:
-                        table.status_name || table.status || "Desconocido",
-                    // Asegurar que tengamos los campos necesarios para el filtrado
-                    section: table.section || "Sin sección",
-                    capacity: table.capacity || 0,
-                }));
-                setAllTables(processedTables);
-            })
-            .catch((error) => {
-                console.error("Error fetching tables:", error);
-            });
-    }, [token]);
+        try {
+            const data = await apiService.getTables();
+            // Procesar los datos de mesas para asegurar consistencia en los estados
+            const processedTables = data.map((table) => ({
+                ...table,
+                // Asegurar que el estado sea consistente
+                status_name: table.status_name || table.status || "Desconocido",
+                // Asegurar que tengamos los campos necesarios para el filtrado
+                section: table.section || "Sin sección",
+                capacity: table.capacity || 0,
+            }));
+            setAllTables(processedTables);
+        } catch (error) {
+            console.error("Error fetching tables:", error);
+        }
+    }, [token, apiService]);
 
     // Cargar mesas al cambiar de menú
     useEffect(() => {
@@ -158,43 +140,41 @@ export default function Waiters() {
         });
     };
 
-    // Obtener secciones y capacidades únicas para los selects
-    const uniqueSections = [...new Set(allTables.map((t) => t.section))];
-    const uniqueCapacities = [...new Set(allTables.map((t) => t.capacity))];
+    // Obtener secciones y capacidades únicas para los selects (memoizados)
+    const uniqueSections = useMemo(() => {
+        return [...new Set(allTables.map((t) => t.section))].sort((a, b) => String(a).localeCompare(String(b)));
+    }, [allTables]);
+    const uniqueCapacities = useMemo(() => {
+        return [...new Set(allTables.map((t) => t.capacity))].sort((a, b) => Number(a) - Number(b));
+    }, [allTables]);
 
     // Función para cargar todas las estadísticas específicas del mesero actual
     const fetchStatistics = useCallback(async () => {
         if (!token || !user) return;
 
-        console.log(user);
-
-        const apiService = new ApiService();
-
         // Obtener fecha de hoy para filtrar estadísticas del día actual
         const today = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
 
         try {
-            // Obtener estadísticas específicas del mesero actual usando su ID
-            const waiterOrdersStats =
-                await apiService.getWaiterOrdersStatistics(user.id, {
-                    start_date: today,
-                    end_date: today,
-                });
+            const [waiterOrdersStats, waiterTablesStats, lastOrders, tableCount] = await Promise.all([
+                apiService.getWaiterOrdersStatistics(user.id, { start_date: today, end_date: today }),
+                apiService.getWaiterTablesStatistics(user.id),
+                apiService.getOrdersByWaiter(user.id, 5),
+                apiService.getTablesCount(),
+            ]);
 
-            // Obtener estadísticas de mesas específicas del mesero actual
-            const waiterTablesStats =
-                await apiService.getWaiterTablesStatistics(user.id);
-            const lastOrders = await apiService.getOrdersByWaiter(user.id, 5);
-            const tableCount = await apiService.getTablesCount();
+            const ordersStats = waiterOrdersStats?.data?.statistics || {};
+            const tablesStats = waiterTablesStats?.data?.statistics || {};
+            const totalTables = tableCount?.data?.count || 0;
 
-            console.log(waiterOrdersStats, waiterTablesStats, lastOrders, tableCount);
-
-            const totalTables = tableCount.data.count || 0;
-            const occupiedTables = waiterTablesStats.data.statistics.active_sessions || 0;
-            const pendingOrders = waiterOrdersStats.data.statistics.total_orders - (waiterOrdersStats.data.statistics.completed_orders || 0);
-            const completedOrders = waiterOrdersStats.data.statistics.completed_orders || 0;
-            const totalSales = waiterOrdersStats.data.statistics.completed_amount || 0;
-            const lastOrdersData = lastOrders || [];
+            const completedOrders = ordersStats.completed_orders || 0;
+            const totalOrders = ordersStats.total_orders || 0;
+            const pendingOrders = Math.max(0, totalOrders - completedOrders);
+            const occupiedTables = tablesStats.active_sessions || 0;
+            const totalSales = [
+                { amount: ordersStats.completed_amount || 0 },
+                (ordersStats.currency_conversions?.completed_amount_conversions) || { USD: 0, EUR: 0 },
+            ];
 
             setStats({
                 occupiedTables,
@@ -202,12 +182,12 @@ export default function Waiters() {
                 pendingOrders,
                 totalSales,
                 completedOrders,
-                lastOrdersData,
+                lastOrdersData: lastOrders || [],
             });
         } catch (error) {
             console.error("Error fetching waiter-specific statistics:", error);
         }
-    }, [token, user]);
+    }, [token, user, apiService]);
 
     // Cargar estadísticas cuando el componente se monta o cuando cambia al menú de resumen
     useEffect(() => {
@@ -262,12 +242,17 @@ export default function Waiters() {
                             title="Pedidos<br/>Pendientes"
                             value={stats.pendingOrders}
                             description="por procesar"
-                        />
-                        <CardStatistics
-                            title="Ventas<br/>Totales"
-                            value={`$${stats.totalSales.toFixed(2)}`}
-                            description="hoy"
-                        />
+                        />            
+                        <Card className="mx-auto max-w-xs flex flex-col justify-around items-center text-center" decoration="top" decorationColor="#dbeafe">
+                            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zm0 12a6 6 0 100-12 6 6 0 000 12z"></path>
+                                </svg>
+                            </div>
+                            <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">Ventas<br/>Totales</p>
+                            <div className="text-3xl text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold"><MoneyTip exchangeRates={stats.totalSales} /></div>
+                            <p className="text-[12px] mt-2 text-tremor-content">hoy</p>
+                        </Card>            
                         <CardStatistics
                             title="Pedidos<br/>Completados"
                             value={stats.completedOrders}
@@ -295,7 +280,7 @@ export default function Waiters() {
                                         </TableHeaderCell>
                                     </TableRow>
                                 </TableHead>
-                                <TableBody>
+                                <TableBody className="relative">
                                     {stats.lastOrdersData.map((item, index) => (
                                         <TableRow
                                             key={`order-${
@@ -303,6 +288,7 @@ export default function Waiters() {
                                                 item.id_order ||
                                                 index
                                             }`}
+                                            className="relative"
                                         >
                                             <TableCell>
                                                 {item.id_order}
@@ -329,7 +315,10 @@ export default function Waiters() {
                                                     {item.status_name}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell>{item.total}</TableCell>
+                                            <TableCell className="relative"><MoneyTip exchangeRates={[
+                                                { amount: item.total },
+                                                item.total_conversions
+                                            ]}/></TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -410,7 +399,7 @@ export default function Waiters() {
                                 {uniqueCapacities.map((cap, index) => (
                                     <SelectItem
                                         key={`capacity-${cap}-${index}`}
-                                        value={cap}
+                                        value={`${cap}`}
                                     >
                                         {cap}
                                     </SelectItem>
