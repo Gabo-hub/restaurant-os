@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() =>  {
+  useEffect(() => {
     const token = localStorage.getItem('token');
 
     if (token) {
@@ -24,11 +24,11 @@ export function AuthProvider({ children }) {
         },
         body: JSON.stringify({ token }),
       }).then(res => {
-          if (!res.ok) {
-            throw new Error('Token verification failed');
-          }
-          return res.json();
-        })
+        if (!res.ok) {
+          throw new Error('Token verification failed');
+        }
+        return res.json();
+      })
         .then(result => {
           if (result.token) {
             const userData = {
