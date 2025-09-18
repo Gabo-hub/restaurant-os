@@ -4,6 +4,7 @@ import ApiService from "../../api";
 import DetailsMenu from "./DetailsMenu";
 import { useAuth } from "../../AuthContext";
 import { Button } from "@tremor/react";
+import MoneyTip from "./MoneyTip";
 
 export default function DialogOrder({ isOpen, setisOpen, data }) {
     const [loading, setLoading] = useState(false);
@@ -30,14 +31,15 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
     useEffect(() => {
         setLoading(true);
         const apiService = new ApiService();
-        apiService.getMenus() // Asegúrate de que getMenus no requiera token si no lo estás pasando
+        apiService.getMenus()
             .then(data => {
                 setMenus(data);
                 setMenusFiltered(data);
             })
             .catch(error => {
                 console.error("Error fetching menus:", error);
-            });
+            })
+            .finally(() => setLoading(false));
         // apiService.getTypeOrders()
         //     .then(data => {
         //         setTypeOrders(data);
@@ -58,9 +60,6 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
         } else {
             setMenusFiltered(menus);
         }
-        return () => {
-            setLoading(false);
-        };
     }, [filter, menus]);
 
     //Manejar el tipo de orden
@@ -72,7 +71,6 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
     // Abrir el diálogo de detalles del menu
     const openDetailsMenu = (item) => {
         setDetailsMenuD(true);
-        console.log(item);
         setSelectedMenuItem(item);
     };
 
@@ -96,6 +94,7 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                         id_menu: data.id_menu,
                         name: data.name,
                         price: data.price,
+                        price_conversions: data.price_conversions,
                         quantity: 1,
                         discount: 0
                     }
@@ -166,11 +165,8 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
             id_type: Number(3),
         };
 
-        console.log(orderData);
-
         apiService.createOrder(orderData)
             .then(response => {
-                console.log("Orden creada exitosamente:", response);
                 setNotification({ message: "Orden creada exitosamente", type: 'success' });
                 setTimeout(() => {
                     closeDialog();
@@ -219,7 +215,7 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                                     {menusFiltered.map((item) => (
                                         <div key={item.id_menu} className="w-full h-48 grid grid-row-4 p-4 border rounded-lg justify-between shadow-md">
                                                 <h3 onClick={() => openDetailsMenu(item)} className="font-semibold cursor-pointer text-blue-900 hover:underline">{item.name}</h3>
-                                                <p className="text-gray-600 mt-2">${item.price}</p>
+                                                <MoneyTip exchangeRates={[item.price, item.price_conversions]} />
                                                 <p className="text-sm max-h-[22px] text-gray-500 mt-2 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{item.description}</p>
                                                 {item.stock > 5 && item.availability === true ? (
                                                     <Button onClick={() => handleOrderChange(item)} className="clean w-full">Agregar</Button>
@@ -243,11 +239,12 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                     <div className="p-4 pb-0 border rounded-lg shadow-md w-full h-[88%] flex flex-col">
                         {Object.keys(order).length > 0 ? (
                             <div className="flex-grow overflow-y-auto flex flex-col gap-2">
-                                {Object.values(order).map((item) => (
+                                {Object.values(order).map((item) => {
+                                    return(
                                     <div key={item.id_menu} className="flex flex-row justify-between items-center p-4 border rounded-lg">
                                         <div>
                                             <h3 className="font-semibold">{item.name}</h3>
-                                            <p className="text-gray-600">${item.price}</p>
+                                            <MoneyTip exchangeRates={[item.price, item.price_conversions]}/>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div onClick={() => showItemDetails(item)} className="clean px-1 py-1 bg-slate-600 text-white rounded">
@@ -260,7 +257,8 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                                             <Button onClick={() => handleOrderChange(item)} className="border-none px-2 py-1 bg-green-500 hover:bg-green-700 text-white rounded">+</Button>
                                         </div>
                                     </div>
-                                ))}
+                                    )
+                                })}
                             </div>
                         ) : (
                             <div className="flex-grow text-gray-500">
