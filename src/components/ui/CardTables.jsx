@@ -150,7 +150,7 @@ export default function CardTable({ data, onTableUpdate }) {
                 </div>
             )}
             {showDetails && (
-                <div onClick={() => setShowDetails(false)} className="fixed bg-black/70 z-40  inset-0 flex justify-center items-center">
+                <div onClick={() => setShowDetails(false)}>
                     <div onClick={(e) => e.stopPropagation()}>
                         <DialogOrder isOpen={showDetails} setisOpen={setShowDetails} data={data} />
                     </div>
