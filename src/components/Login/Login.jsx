@@ -16,8 +16,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Username:', username);
-    console.log('Password:', password);
     const success = await login(username, password);
     if (success) {
       navigate('/dashboard');

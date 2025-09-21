@@ -101,10 +101,7 @@ class ApiService {
   }
 
   getOrdersByWaiter(waiterId, limit) {
-    const queryParams = new URLSearchParams({
-      limit: limit,
-      id_waiter: waiterId
-    }).toString();
+    const queryParams = new URLSearchParams(limit ? { limit, id_waiter: waiterId } : { id_waiter: waiterId }).toString();
     return this._fetch(`/orders/?${queryParams}`);
   }
 
@@ -115,11 +112,19 @@ class ApiService {
     });
   }
 
+  getConvertCurrency(amount) {
+    return this._fetch('/currencies/convert', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    });
+  }
+
   getOrder(orderId) {
     return this._fetch(`/orders/${orderId}`);
   }
 
   updateOrder(orderId, orderData) {
+    console.log(orderData);
     return this._fetch(`/orders/${orderId}`, {
       method: 'PUT',
       body: JSON.stringify(orderData),
@@ -142,6 +147,13 @@ class ApiService {
   removeItemFromOrder(orderId, detailOrderId) {
     return this._fetch(`/orders/${orderId}/items/${detailOrderId}`, {
       method: 'DELETE',
+    });
+  }
+
+  updateOrderItem(orderId, detailOrderId, itemData) {
+    return this._fetch(`/orders/${orderId}/items/${detailOrderId}`, {
+      method: 'PUT',
+      body: JSON.stringify(itemData),
     });
   }
 
