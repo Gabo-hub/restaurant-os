@@ -33,7 +33,9 @@ button[data-headlessui-state]:focus {
   --tw-ring-color: #fda96c;
 }
 
-
+.tablepruv {
+ scrollbar-color: #fda96c transparent;   
+}
 /* From Uiverse.io by Cevorob
 button {
   padding: 9px 20px;

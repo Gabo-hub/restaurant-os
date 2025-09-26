@@ -316,7 +316,7 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                         <h2 className="text-xl font-bold my-5 w-full">Resumen del Pedido</h2>
                         <div className="p-4 pb-0 border rounded-lg shadow-md w-full sm:h-[80%] h-auto flex flex-col overflow-hidden">
                             {Object.keys(order).length > 0 ? (
-                                <div className="flex-grow overflow-x-auto w-full overflow-y-auto max-h-[50vh] sm:max-h-[380px] -mx-4 px-4">
+                                <div className="tablepruv flex-grow overflow-x-auto w-full overflow-y-auto max-h-[50vh] sm:max-h-[380px] -mx-4 px-4">
                                     <Table className="min-w-[700px] w-full text-xs [&_td]:py-1 [&_th]:py-1 [&_td]:px-2 [&_th]:px-2 table-fixed">
                                         <TableHead>
                                             <TableRow>
@@ -391,7 +391,7 @@ export default function DialogOrder({ isOpen, setisOpen, data }) {
                                 <div className="flex items-center gap-2">
                                     <div className="flex items-center gap-2">
                                         <span className="text-lg font-semibold">Platos Totales:</span>
-                                        <span className="">
+                                        <span className={`${totalConversions ? '' : 'text-lg'}`}>
                                             {Object.values(order).reduce((acc, item) => acc + (item.quantity || 0), 0)}
                                         </span>
                                     </div>

@@ -7,7 +7,7 @@
 
 # testing
 /coverage
-#swagger-api.json
+swagger-api.json
 
 # production
 /build
